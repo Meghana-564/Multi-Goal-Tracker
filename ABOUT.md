@@ -5,6 +5,14 @@ Welcome to the Multi-User Roadmap Builder! This document explains exactly what t
 ## 🌟 What is this project?
 This is a web application where users can create, share, and track "Roadmaps" (like a step-by-step guide to learn a new skill). Users can earn experience points (XP) and badges for completing steps, chat with an AI assistant, and visually see their roadmap as an interactive graph.
 
+## Roadmaps include :
+
+Category	Roles
+💻 Dev	Frontend, Backend, Full Stack, Python, JavaScript, React
+📊 Data	Data Scientist, Data Analyst, Machine Learning Engineer
+☁️ Infra	DevOps, Cloud Engineer, SRE, Embedded Systems
+🔐 Other	Cybersecurity, UI/UX, Android, iOS, Blockchain, Game Dev
+
 ---
 
 ## 🛠️ The Two Main Parts
@@ -75,3 +83,21 @@ Here is how the 3 AI features work:
    - **How it works:** The `AIChatAssistant` component in React sends your message to the backend `/api/ai/chat` route. The AI service replies with an encouraging, simulated response.
 
 *(Note: If you want to use real AI in the future, we would simply replace the simulated responses in `aiService.js` with real network requests to the OpenAI ChatGPT API using an API key!)*
+
+
+
+✅ Run the Backend
+Open a terminal and run:
+
+cd backend:
+npm install
+node server.js
+
+✅ Run the Frontend
+Open a NEW terminal and run:
+
+cd frontend
+npm install
+npm run dev // new laptop lo run cheste edi cheyie lekunte alredy download ayi vundhi so avvasaram ledhu
+✅ Visit the App
+Open http://localhost:5173 in your browser.

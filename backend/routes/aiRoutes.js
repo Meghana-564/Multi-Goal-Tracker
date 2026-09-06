@@ -26,10 +26,11 @@ router.post('/enhance-step', auth, async (req, res) => {
 router.post('/chat', auth, async (req, res) => {
   try {
     const { message } = req.body;
+    if (!message) return res.status(400).json({ message: 'Message is required' });
     const response = await aiService.chat(message);
     res.json(response);
   } catch (err) {
-    res.status(500).json({ message: 'AI Error' });
+    res.status(500).json({ message: err.message || 'AI service error' });
   }
 });
 

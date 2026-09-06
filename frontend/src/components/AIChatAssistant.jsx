@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import api from '../utils/api';
 import { Bot, X, MessageSquare, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AuthContext } from '../context/AuthContext';
 
 const AIChatAssistant = () => {
+  const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([{ sender: 'ai', text: 'Hi! I am your AI learning assistant. Ask me anything about your roadmap!' }]);
+  const [messages, setMessages] = useState([{ sender: 'ai', type: 'text', text: 'Hi! I am your AI learning assistant. Ask me for a roadmap (e.g. "Python roadmap") or ask any learning question!' }]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+
+  if (!user) return null;
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -20,9 +24,15 @@ const AIChatAssistant = () => {
 
     try {
       const res = await api.post('/ai/chat', { message: userMessage });
-      setMessages(prev => [...prev, { sender: 'ai', text: res.data.reply }]);
+      const data = res.data;
+      if (data.type === 'roadmap') {
+        setMessages(prev => [...prev, { sender: 'ai', type: 'roadmap', roadmap: data.roadmap }]);
+      } else {
+        setMessages(prev => [...prev, { sender: 'ai', type: 'text', text: data.reply }]);
+      }
     } catch (err) {
-      setMessages(prev => [...prev, { sender: 'ai', text: 'Sorry, I encountered an error.' }]);
+      const errMsg = err.response?.data?.message || 'Sorry, I encountered an error.';
+      setMessages(prev => [...prev, { sender: 'ai', type: 'text', text: errMsg }]);
     } finally {
       setLoading(false);
     }
@@ -50,8 +60,23 @@ const AIChatAssistant = () => {
             
             <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {messages.map((m, i) => (
-                <div key={i} style={{ alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', background: m.sender === 'user' ? 'var(--primary-color)' : 'rgba(255,255,255,0.1)', padding: '0.5rem 1rem', borderRadius: '12px', maxWidth: '80%' }}>
-                  {m.text}
+                <div key={i} style={{ alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '90%' }}>
+                  {m.sender === 'user' || m.type === 'text' ? (
+                    <div style={{ background: m.sender === 'user' ? 'var(--primary-color)' : 'rgba(255,255,255,0.1)', padding: '0.5rem 1rem', borderRadius: '12px' }}>
+                      {m.text}
+                    </div>
+                  ) : m.type === 'roadmap' ? (
+                    <div style={{ background: 'rgba(255,255,255,0.07)', borderRadius: '12px', padding: '0.75rem', fontSize: '0.82rem' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.5rem', color: '#a78bfa' }}>🗺️ {m.roadmap.title}</div>
+                      {m.roadmap.steps.map(s => (
+                        <div key={s.step} style={{ marginBottom: '0.6rem', borderLeft: '2px solid #8b5cf6', paddingLeft: '0.6rem' }}>
+                          <div style={{ fontWeight: '600' }}>Step {s.step}: {s.topic}</div>
+                          <div style={{ color: 'rgba(255,255,255,0.65)', margin: '0.2rem 0' }}>{s.subtopics.join(' · ')}</div>
+                          <div style={{ color: '#34d399', fontSize: '0.78rem' }}>🛠 {s.project}</div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               ))}
               {loading && <div style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.1)', padding: '0.5rem 1rem', borderRadius: '12px' }}>Typing...</div>}
